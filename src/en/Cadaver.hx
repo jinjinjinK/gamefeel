@@ -1,7 +1,7 @@
 package en;
 
 class Cadaver extends Entity {
-	var bounces = 1;
+	var bounces = 2;
 	public function new(e:Entity) {
 		super(0,0);
 		setPosCase(e.cx,e.cy);
@@ -10,10 +10,12 @@ class Cadaver extends Entity {
 		dir = -e.dir;
 		dx = dir*rnd(0.4,0.5);
 		dy = -rnd(0.1,0.2);
+		gravMass = 0.5;
 
 		var g = new h2d.Graphics(spr);
 		g.beginFill(0xdd6600);
 		g.drawRect(-radius, -hei, radius*2, hei);
+		entityRepel = false;
 	}
 
 	override function dispose() {

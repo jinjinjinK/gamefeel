@@ -1,9 +1,13 @@
 package en;
 
+import hxd.Timer;
+import h2d.Anim;
+
 class Hero extends Entity {
 	var ca : dn.heaps.Controller.ControllerAccess;
 	var gun : h2d.Graphics;
 	var dashDir : Int;
+	var life = 10;
 
 	public function new(x,y) {
 		super(x,y);
@@ -16,16 +20,16 @@ class Hero extends Entity {
 			spr.anim.registerStateAnim("mechJumpDown",4, function() return !onGround && dy>=0);
 			spr.anim.registerStateAnim("mechLand",3, function() return onGround && cd.has("landed"));
 			spr.anim.registerStateAnim("mechShootLoad",2, 0.7, function() return isChargingAction("shoot") || cd.has("gunHolding"));
-
 			// spr.anim.registerStateAnim("mechWalkWeapon",2, 1.0 /* Speed is set in update */, function() return isCarryingAnything() && getCurrentVelocity()>=0.0001 );
 
-			spr.anim.registerStateAnim("mechRun",1, 0.45, function() return M.fabs(dxTotal)>=0.010 );
+			spr.anim.registerStateAnim("mechRun",1, 0.70, function() return M.fabs(dxTotal)>=0.010 );
 			// spr.anim.registerStateAnim("mechWalkWeapon",1, 1.0 /* Speed is set in update */, function() return weaponReady && !cd.has("running") && getCurrentVelocity()>=0.0001 );
 
 			// spr.anim.registerStateAnim("mechRun",1, 0.35 /* Speed is set in update */, function() return !weaponReady && cd.has("running") && getCurrentVelocity()>=0.010 );
 			// spr.anim.registerStateAnim("mechWalk",1, 1.0 /* Speed is set in update */, function() return !weaponReady && !cd.has("running") && getCurrentVelocity()>=0.0001 );
 
 			spr.anim.registerStateAnim("mechIdle",0, 0.25);
+			
 		}
 		else {
 			// Hero placeholder
@@ -34,7 +38,7 @@ class Hero extends Entity {
 			g.drawRect(-radius, -hei, radius*2, hei);
 			g.endFill();
 		}
-
+		spr.filter = new h2d.filter.Glow(0x0, 0.4, 32, 2, 2, true);
 		// Gun placeholder
 		gun = new h2d.Graphics(spr);
 		gun.visible = options.baseArt && !options.heroSprite;
@@ -49,7 +53,40 @@ class Hero extends Entity {
 		ca.dispose();
 		ca = null;
 	}
+	public function hit(dmg:Int, impactDir:Int) {
+		life -= dmg;
 
+		if (options.mobSquashAndStrech)
+			skew(0.6, 1.35);
+
+		if (options.physicalReactions)
+			if (!cd.hasSetS("firstImpact", 0.4))
+				bump(impactDir * rnd(0.040, 0.060), -0.05);
+			else
+				bump(impactDir * rnd(0.005, 0.010), 0);
+
+		if (options.blinkImpact)
+			blink(0xffffff);
+
+		if (options.lighting)
+			fx.lightSpot(centerX + rnd(0, 15) * -impactDir, centerY + rnd(0, 8, true), 0xff0000, rnd(0.15, 0.18));
+
+		if (options.blood) {
+			fx.bloodBackHits(centerX, centerY, impactDir, 2);
+			fx.bloodFrontHits(centerX, centerY, -impactDir, 0.6);
+		}
+
+		if (life <= 0) {
+			life = 0;
+			onDie();
+		}
+	}
+	function onDie() {
+		if (options.cadavers)
+			new en.Cadaver(this);
+
+		destroy();
+	}
 	override function onLand(cHei) {
 		super.onLand(cHei);
 
@@ -127,26 +164,27 @@ class Hero extends Entity {
 			game.camera.bumpXY(-dir*3, 0);
 
 		if( options.flashes )
-			fx.flashBangS(0xffcc00, 0.04, 0.1);
+			fx.flashBangS(0xffcc00, 0.05, 0.2);
 
 		if( options.heroSquashAndStrech )
 			skew(1.2,0.9);
 
 		if( options.physicalReactions ) {
-			dx += -dir*rnd(0,0.01);
+			dx += -dir*rnd(0,0.05);
 			animOffsetX+=-dir*rnd(1,3);
 		}
 
-		var off = options.randomizeBullets ? rnd(0, 2.5, true) : 0;
+		var off = options.randomizeBullets ? rnd(0, 5.5,true) : 0;
 		if( options.heroSprite )
 			off-=3;
 		var b = new en.Bullet(this, off);
 		if( options.randomizeBullets )
 			b.ang += 0.04 - rnd(0,0.065);
-		b.speed = options.randomizeBullets ? rnd(0.95,1.05) : 1;
+		b.speed = options.randomizeBullets ? rnd(1.135,1.55) : 1;
 		lockS(0.1);
 		cd.setS("gunRecoil", 0.1);
 		cd.setS("gunHolding", getLockS());
+		dy = -0.1;
 
 		if( options.cartridges )
 			fx.cartridge(b.footX, b.footY, -dir);
@@ -180,21 +218,22 @@ class Hero extends Entity {
 		else if( ca.leftDown() )
 			dir = -1;
 
+		
 		// Run step frames
 		if( options.heroSprite && ( spr.groupName=="mechRun" || spr.groupName=="mechRunWeapon" ) && spr.frame==1 && !cd.hasSetS("runCycleBreak"+spr.frame, 0.25) ) {
 			// Run
 			dx *= 0.4;
 			dy *= 0.4;
-			if( options.camShakesXY ) {
-				game.camera.bumpXY(0,0.5);
-				game.camera.shakeY(0.3,0.2);
-			}
+			// if( options.camShakesXY ) {
+			// 	game.camera.bumpXY(0,0.5);
+			// 	game.camera.shakeY(0.3,0.2);
+			// }
 		}
 
 		if( canAct() ) {
 			// Walk
 			if( !cd.has("walkLock") ) {
-				var spd = (onGround ? 0.011 : 0.015 ) * cd.getRatio("airControl");
+				var spd = (onGround ? 0.025 : 0.030 ) * cd.getRatio("airControl");
 				if( ca.rightDown() ) {
 					dx+=spd*tmod;
 				}
@@ -204,25 +243,33 @@ class Hero extends Entity {
 				else
 					dx*=Math.pow(frict,tmod);
 			}
-
+			if (!onGround && dy <0 && dy>-0.2)
+				gravMass = 0.2;
+			else 
+				gravMass = 1;
 			// Jump
 			if( !onGround && cd.has("extraJumping") && ca.aDown() )
-				dy+=-0.08*tmod;
+				dy+=-0.06*tmod;
+				// if(Timer.frameCount%4 == 0)fx.dust(footX, footY);
+				// fx.dust(footX, footY);	
 
 			if( !onGround && ca.aPressed() && cd.has("allowAirJump") ) {
 				// Double jump
-				dy = -0.1;
+				dy = -0.15;
 				cd.unset("allowAirJump");
 				cd.setS("extraJumping",0.1);
 				cd.setS("reduceGravity",0.3);
 				if( options.heroSquashAndStrech )
 					skew(0.85,1.2);
+				fx.dust(footX, footY);
+				
 			}
 
 			if( onGround && ca.aPressed() ) {
 				// Normal jump
 				Assets.SBANK.dash1(0.2);
-				dy = -0.16;
+				dy = -0.30;
+				fx.dust(footX, footY);
 				cd.setS("reduceGravity",0.1);
 				cd.setS("extraJumping", 0.1);
 				cd.setS("allowAirJump",Const.INFINITE);
@@ -231,7 +278,7 @@ class Hero extends Entity {
 			}
 
 			// Dash
-			if( ( ca.bPressed() || cd.has("dashQueued") ) && !cd.hasSetS("dashLock",0.3) ) {
+			if ((ca.bPressed() || cd.has("dashQueued") ) && !cd.hasSetS("dashLock",0.3) ) {
 				cd.unset("dashQueued");
 				dashDir = dir;
 				dx = dashDir*0.5;
@@ -255,7 +302,8 @@ class Hero extends Entity {
 			if( burstCount<=0 && ( ca.xDown() || ca.rtDown() ) && !cd.has("shootLock") ) {
 				if( options.gunAiming )
 					Assets.SBANK.aim0(0.5);
-				chargeAction("shoot", options.gunAiming ? 0.39 : 0., function() {
+				
+				chargeAction("shoot", options.gunAiming ? 0.1 : 0., function() {
 					burstCount = 4;
 				});
 			}

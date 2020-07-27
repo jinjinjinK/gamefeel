@@ -17,8 +17,12 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },   
+        {
+            "label": "myShellCommand",
+            "type": "shell",
+            "command": "hl bin/client.hl"
         },
-
         {
             "label": "HL release",
             "type": "hxml",

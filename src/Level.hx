@@ -19,6 +19,7 @@ class Level extends dn.Process {
 		data = project.getLevelByName("level");
 
 		// Init collisions
+		
 		var l = data.getLayerByName("collisions");
 		for(cy in 0...l.cHei)
 		for(cx in 0...l.cWid)

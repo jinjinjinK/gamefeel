@@ -1,6 +1,11 @@
+import hxd.res.Atlas;
+import h2d.Anim;
 import h2d.Sprite;
+import h3d.Vector;
+import hxd.Res;
 import dn.heaps.HParticle;
 import dn.Tweenie;
+import dn.heaps.slib.*;
 
 
 class Fx extends dn.Process {
@@ -71,6 +76,7 @@ class Fx extends dn.Process {
 	public inline function getTile(id:String) : h2d.Tile {
 		return Assets.tiles.getTileRandom(id);
 	}
+	
 
 	public function killAll() {
 		pool.killAll();
@@ -136,6 +142,18 @@ class Fx extends dn.Process {
 		game.tw.createS(e.alpha, 0, t).end( function() {
 			e.remove();
 		});
+	}
+
+	public function dust(x:Float, y:Float) {
+		Res.initEmbed();
+		var frames = Res.dust.getAnim("dust");
+		var anim = new Anim(frames, 14.0, game.root);
+		anim.y = y - 65;
+		anim.x = x - 74;
+		anim.loop = false;
+		anim.onAnimEnd = function() {
+			anim.remove();
+		}
 	}
 
 	inline function hasCollision(p:HParticle, offX=0., offY=0.) {
@@ -301,6 +319,18 @@ class Fx extends dn.Process {
 		p.dr = dir*rnd(0.1,0.2);
 		p.onUpdate = _physics;
 		p.lifeS = rnd(12,15);
+
+		var p2 = allocTopAdd(getTile("fxCartridge"), x + rnd(0, 1, true), y);
+		p2.setFadeS(1, 0, rnd(5, 7));
+		p2.colorize(0x9b4400);
+		p2.dx = p.dx;
+		p2.dy = p.dy;
+		p2.scaleX = p.scaleX;
+		p2.gy = p.gy;
+		p2.frict = p.frict;
+		p2.dr = p.dr;
+		p2.onUpdate = _physics;
+		p2.lifeS = 10;
 	}
 
 	function _trackEntity(p:HParticle) {

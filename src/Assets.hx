@@ -18,11 +18,12 @@ class Assets {
 		fontLarge = hxd.Res.fonts.barlow_condensed_regular_32.toFont();
 
 		tiles = dn.heaps.assets.Atlas.load("atlas/tiles.atlas");
-		tiles.defineAnim("mechRun", "0(6), 1(2), 2(6), 1(2)");
+		tiles.defineAnim("mechRun", "0(6), 1(4), 2(6), 1(4)");
 		tiles.defineAnim("mechRunWeapon", "0(6), 1(2), 2(6), 1(2)");
 		tiles.defineAnim("mechIdle", "0(5), 1(10), 0(15), 1(10), 3(20), 2(4), 1(10)");
 		tiles.defineAnim("mechShootLoad", "7(9999)");
 		tiles.defineAnim("mechLand", "0(3), 1, 2(9999)");
 		tiles.defineAnim("mechShoot", "0(2), 1-2");
+		// tiles.defineAnim("dust", "0(6), 1(6), 2(6), 3(6), 4(6), 5(6), 6(6), 7(6)");
 	}
 }

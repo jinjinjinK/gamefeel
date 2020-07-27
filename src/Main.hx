@@ -1,3 +1,4 @@
+import cdb.Data.TileMode;
 import hxd.Key;
 
 class Main extends dn.Process {
@@ -26,7 +27,6 @@ class Main extends dn.Process {
         #else
         hxd.Res.initEmbed();
         #end
-
 		// Assets init
 		Assets.init();
 
@@ -38,8 +38,9 @@ class Main extends dn.Process {
 		ca = controller.createAccess("main");
 		controller.bind(AXIS_LEFT_X_NEG, Key.LEFT, Key.Q, Key.A);
 		controller.bind(AXIS_LEFT_X_POS, Key.RIGHT, Key.D);
-		controller.bind(X, Key.X, Key.CTRL, Key.SHIFT);
-		controller.bind(A, Key.SPACE);
+		controller.bind(X, Key.CTRL, Key.H);
+		controller.bind(A, Key.F);
+		controller.bind(B, Key.G);
 		controller.bind(SELECT, Key.R);
 		controller.bind(START, Key.N);
 
@@ -73,7 +74,7 @@ class Main extends dn.Process {
 	}
 
     override function update() {
-		dn.heaps.slib.SpriteLib.TMOD = tmod;
+		Assets.tiles.tmod = tmod;
         super.update();
     }
 }

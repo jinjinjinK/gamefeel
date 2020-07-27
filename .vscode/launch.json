@@ -10,7 +10,8 @@
             "type": "hl",
             "hxml": "hl.debug.hxml",
             "cwd": "${workspaceRoot}",
-            "preLaunchTask": "HL debug"
+            "preLaunchTask": "myShellCommand",
+            
         }
     ]
 }

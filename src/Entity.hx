@@ -17,7 +17,8 @@ class Entity {
     public var cx = 0;
     public var cy = 0;
     public var xr = 0.5;
-    public var yr = 1.0;
+	public var yr = 1.0;
+	
 
     public var dx = 0.;
     public var dy = 0.;
@@ -27,7 +28,8 @@ class Entity {
 	public var dyTotal(get,never) : Float; inline function get_dyTotal() return dy+bdy;
 	public var frict = 0.89;
 	public var bumpFrict = 0.93;
-	var gravity = 0.025;
+	var gravity = 0.050;
+	public var gravMass = 1.0;
 	public var hei : Float = Const.GRID;
 	public var radius = Const.GRID*0.5;
 	public var onGround(get,never) : Bool; inline function get_onGround() return level.hasCollision(cx,cy+1) && yr==1 && dy>=0;
@@ -37,6 +39,7 @@ class Entity {
 	public var sprScaleY = 1.0;
 	public var entityVisible = true;
 	public var hasCollisions = true;
+	public var entityRepel = true;
 
 	var skewX = 1.;
 	var skewY = 1.;
@@ -335,6 +338,31 @@ class Entity {
 		// X
 		var steps = M.ceil( M.fabs(dxTotal*tmod) );
 		var step = dxTotal*tmod / steps;
+
+		if(this.entityRepel){
+			for (e in ALL) {
+				// Fast distance check
+				if (e != this && e.entityRepel && Math.abs(cx - e.cx) <= 2 && Math.abs(cy - e.cy) <= 2) {
+					// Real distance check
+					var dist = Math.sqrt((e.spr.x - spr.x) * (e.spr.x - spr.x) + (e.spr.y - spr.y) * (e.spr.y - spr.y));
+					if (dist <= radius + e.radius) {
+						var ang = Math.atan2(e.spr.y - spr.y, e.spr.x - spr.x);
+						var force = 0.2;
+						var repelPower = (radius + e.radius - dist) / (radius + e.radius);
+						dx -= Math.cos(ang) * repelPower * force;
+						dy -= Math.sin(ang) * repelPower * force;
+						e.dx += Math.cos(ang) * repelPower * force;
+						e.dy += Math.sin(ang) * repelPower * force;
+						// dx -= (e.spr.x - spr.x) / dist * repelPower * force;
+						// dy -= (e.spr.y - spr.y) / dist * repelPower * force;
+						// e.dx += (e.spr.x - spr.x) / dist * repelPower * force;
+						// e.dy += (e.spr.y - spr.y) / dist * repelPower * force;
+					}
+				}
+			}
+		}
+		
+
 		while( steps>0 ) {
 			xr+=step;
 
@@ -357,7 +385,7 @@ class Entity {
 
 		// Y
 		if( !onGround )
-			dy+=getGravity()*tmod;
+			dy+=getGravity()*tmod*gravMass;
 		if( onGround || dy<0 )
 			fallStartY = footY;
 		var steps = M.ceil( M.fabs(dyTotal*tmod) );
@@ -372,8 +400,8 @@ class Entity {
 				onLand( (footY-fallStartY)/Const.GRID );
 			}
 
-			if( hasCollisions && yr<0.5 && level.hasCollision(cx,cy-1) )
-				yr = 0.5;
+			if( hasCollisions && yr<0.9 && level.hasCollision(cx,cy-1) )
+				yr = 0.9;
 
 			while( yr>1 ) { yr--; cy++; }
 			while( yr<0 ) { yr++; cy--; }

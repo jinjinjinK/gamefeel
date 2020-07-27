@@ -4,12 +4,14 @@ class Bullet extends Entity {
 	public static var ALL : Array<Bullet> = [];
 	public var speed = 1.0;
 	public var ang : Float;
+	public var fireBall:Bool = false;
 
-	public function new(e:Entity, offY=0.) {
+	public function new(e:Entity, offY=0., ?_fireBall = false) {
 		super(0,0);
 		setPosPixel(e.centerX, e.centerY+offY);
 		ALL.push(this);
 		Game.ME.scroller.add(spr, Const.DP_BG);
+		fireBall = _fireBall;
 
 		hasCollisions = false;
 		ang = e.dirToAng();
@@ -20,6 +22,7 @@ class Bullet extends Entity {
 
 		var g = new h2d.Graphics(spr);
 		spr.smooth = true;
+		if(fireBall)g.scale(3);
 		if( options.baseArt ) {
 			g.beginFill(0xff0000,0.33);
 			g.drawRect(-16, -1, 13, 1);
@@ -60,15 +63,28 @@ class Bullet extends Entity {
 		dir = M.radDistance(ang,0)<=M.PIHALF ? 1 : -1;
 
 		// Mobs
-		for(e in Mob.ALL) {
-			if( e.isAlive() && footX>=e.footX-e.radius && footX<=e.footX+e.radius && footY>=e.footY-e.hei && footY<=e.footY ) {
-				e.hit(1, dir);
-				if( options.bulletImpactFx ) {
-					fx.hitEntity( e.centerX-dir*4, footY, -dir );
+		if(fireBall == false){
+			for (e in Mob.ALL) {
+				if (e.isAlive() && footX >= e.footX - e.radius && footX <= e.footX + e.radius && footY >= e.footY - e.hei && footY <= e.footY) {
+					e.hit(1, dir);
+					if (options.bulletImpactFx) {
+						fx.hitEntity(e.centerX - dir * 4, footY, -dir);
+					}
+					destroy();
+				}
+			}
+		}
+		else {
+			if (hero.isAlive() && footX >= hero.footX - hero.radius && footX <= hero.footX + hero.radius && footY >= hero.footY - hero.hei
+				&& footY <= hero.footY) {
+				hero.hit(1, dir);
+				if (options.bulletImpactFx) {
+					fx.hitEntity(hero.centerX - dir * 4, footY, -dir);
 				}
 				destroy();
 			}
 		}
+	
 
 		// Walls
 		if( !level.isValid(cx,cy) || level.hasCollision(cx,cy) )
