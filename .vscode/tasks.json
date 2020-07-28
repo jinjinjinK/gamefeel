@@ -13,10 +13,7 @@
                 "clear": true
             },
             "problemMatcher": [ "$haxe-absolute", "$haxe", "$haxe-error", "$haxe-trace" ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+           
         },   
         {
             "label": "myShellCommand",
@@ -26,13 +23,17 @@
         {
             "label": "HL release",
             "type": "hxml",
-            "file": "hl.dx.hxml",
+            "file": "hl.hxml",
             "presentation": {
                 "reveal": "never",
                 "panel": "dedicated",
                 "clear": true
             },
             "problemMatcher": [ "$haxe-absolute", "$haxe", "$haxe-error", "$haxe-trace" ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         },
 
         {

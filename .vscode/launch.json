@@ -9,9 +9,15 @@
             "request": "launch",
             "type": "hl",
             "hxml": "hl.debug.hxml",
-            "cwd": "${workspaceRoot}",
-            "preLaunchTask": "myShellCommand",
+            "cwd": "${workspaceRoot}"
             
+        }
+        {
+            "name": "HL release",
+            "request": "launch",
+            "type": "hl",
+            "hxml": "hl.hxml",
+            "cwd": "${workspaceRoot}"
         }
     ]
 }

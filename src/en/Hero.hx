@@ -7,6 +7,7 @@ class Hero extends Entity {
 	var ca : dn.heaps.Controller.ControllerAccess;
 	var gun : h2d.Graphics;
 	var dashDir : Int;
+	var wallJump:Bool = false;
 	var life = 10;
 
 	public function new(x,y) {
@@ -118,8 +119,8 @@ class Hero extends Entity {
 		if( options.controlLocks && cHei>2 ) {
 			var pow = M.fclamp((cHei-2)/6, 0, 1);
 			dx*=(1-0.5)*pow;
-			lockS( 0.2*pow );
-			cd.setS("walkLock",0.75*pow);
+			// lockS( 0.2*pow );
+			// cd.setS("walkLock",0.75*pow);
 		}
 
 		if( options.heroSquashAndStrech ) {
@@ -223,22 +224,24 @@ class Hero extends Entity {
 		// Run step frames
 		if( options.heroSprite && ( spr.groupName=="mechRun" || spr.groupName=="mechRunWeapon" ) && spr.frame==1 && !cd.hasSetS("runCycleBreak"+spr.frame, 0.25) ) {
 			// Run
-			dx *= 0.4;
+			dx *= 0.6;
 			dy *= 0.4;
 			// if( options.camShakesXY ) {
 			// 	game.camera.bumpXY(0,0.5);
 			// 	game.camera.shakeY(0.3,0.2);
 			// }
 		}
-
+		
 		if( canAct() ) {
 			// Walk
 			if( !cd.has("walkLock") ) {
 				var spd = (onGround ? 0.025 : 0.030 ) * cd.getRatio("airControl");
-				if( ca.rightDown() ) {
+				if (ca.rightDown() && !cd.has("wallJumpLock")) {
+					if(dx<0.15) dx = 0.15;
 					dx+=spd*tmod;
 				}
-				else if( ca.leftDown() ) {
+				else if (ca.leftDown() && !cd.has("wallJumpLock")) {
+					if(dx>-0.15) dx = -0.15;
 					dx-=spd*tmod;
 				}
 				else
@@ -266,10 +269,15 @@ class Hero extends Entity {
 				
 			}
 
-			if( onGround && ca.aPressed() ) {
+			if( (onGround || wallJump) && ca.aPressed() ) {
 				// Normal jump
 				Assets.SBANK.dash1(0.2);
-				dy = -0.30;
+				dy = -0.40;
+				if(wallJump){
+					dir =-dir;
+					dx = 0.4*dir;
+					cd.setS("wallJumpLock", 0.2);
+				}
 				fx.dust(footX, footY);
 				cd.setS("reduceGravity",0.1);
 				cd.setS("extraJumping", 0.1);
@@ -294,7 +302,7 @@ class Hero extends Entity {
 
 				cd.setS("dashing", 0.08);
 				lockS( cd.getS("dashing")+0.1 );
-
+				fx.dashEffect(centerX, centerY, dashDir);
 				if( options.heroSprite )
 					dy-=0.1;
 			}
@@ -308,6 +316,15 @@ class Hero extends Entity {
 					burstCount = 4;
 				});
 			}
+			if (level.hasCollision(cx + 1, cy) && xr >= 0.5 && !onGround && ca.rightDown()) {
+				dy = 0;
+				wallJump = true;
+			}
+			else if (level.hasCollision(cx - 1, cy) && xr <= 0.5 && !onGround && ca.leftDown()) {
+				dy = 0;
+				wallJump = true;
+			}
+			else wallJump = false;
 		}
 
 		// Dash movement

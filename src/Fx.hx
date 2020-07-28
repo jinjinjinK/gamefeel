@@ -143,7 +143,26 @@ class Fx extends dn.Process {
 			e.remove();
 		});
 	}
+	public function dashEffect(x:Float, y:Float, dir:Int) {
 
+		// Small lines
+		var n = irnd(9, 10);
+		for (i in 0...n) {
+			var ang;
+			if(dir == -1)ang = -0.9 + 1.8 * (i + 1) / n + rnd(0, 0.1, true);
+			else ang = -4.3 + 1.8 * (i + 1) / n + rnd(0, 0.1, true);
+			var p = allocTopAdd(getTile("fxLineDir"), x, y);
+			p.setFadeS(rnd(0.7, 1), 0, 0.3);
+			p.rotation = ang;
+			p.moveAng(ang, rnd(4, 8));
+			p.colorize(0xff8200);
+			p.scaleX = rnd(0.3, 0.5);
+			p.scaleY = rnd(1, 2, true);
+			p.scaleXMul = rnd(0.97, 0.99);
+			p.frict = rnd(0.82, 0.84);
+			p.lifeS = rnd(0.05, 0.1);
+		}
+	}
 	public function dust(x:Float, y:Float) {
 		Res.initEmbed();
 		var frames = Res.dust.getAnim("dust");
@@ -295,9 +314,11 @@ class Fx extends dn.Process {
 		// Small lines
 		var n = irnd(9,10);
 		for(i in 0...n) {
-			var ang = -0.9 + 1.8*(i+1)/n + rnd(0,0.1,true);
+			var ang;
+			if(dir == 1)ang = -0.9 + 1.8 * (i + 1) / n + rnd(0, 0.1, true);
+			else ang = -4.3 + 1.8 * (i + 1) / n + rnd(0, 0.1, true);
 			var p = allocTopAdd(getTile("fxLineDir"), x,y);
-			p.setFadeS(rnd(0.6,0.9), 0, 0.05);
+			p.setFadeS(rnd(0.6,0.9), 0, 0.4);
 			p.rotation = ang;
 			p.moveAng(ang, rnd(4,8));
 			p.colorize(0xef5100);
@@ -305,7 +326,7 @@ class Fx extends dn.Process {
 			p.scaleY = rnd(1,2,true);
 			p.scaleXMul = rnd(0.97,0.99);
 			p.frict = rnd(0.82,0.84);
-			p.lifeS = rnd(0.03,0.06);
+			p.lifeS = rnd(0.1,0.2);
 		}
 	}
 
