@@ -147,10 +147,12 @@ class Fx extends dn.Process {
 	public function dust(x:Float, y:Float) {
 		Res.initEmbed();
 		var frames = Res.dust.getAnim("dust");
-		var anim = new Anim(frames, 14.0, game.root);
-		anim.y = y - 65;
-		anim.x = x - 74;
+		var anim = new Anim(frames, 14.0);
+		anim.setPosition(x,y);
 		anim.loop = false;
+		anim.x -=anim.getBounds().width/2;
+		anim.y -=anim.getBounds().height;
+		Game.ME.scroller.add(anim, Const.DP_BG);
 		anim.onAnimEnd = function() {
 			anim.remove();
 		}

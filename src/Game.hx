@@ -127,7 +127,6 @@ class Game extends Process {
 			for(gid in 0...10)
 				dn.heaps.Sfx.muteGroup(gid);
 		}
-		// hero.blink(0xff0000);
 		// Updates
 		for(e in Entity.ALL) if( !e.destroyed ) e.preUpdate();
 		for(e in Entity.ALL) if( !e.destroyed ) e.update();

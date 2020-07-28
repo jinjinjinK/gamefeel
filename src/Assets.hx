@@ -24,6 +24,5 @@ class Assets {
 		tiles.defineAnim("mechShootLoad", "7(9999)");
 		tiles.defineAnim("mechLand", "0(3), 1, 2(9999)");
 		tiles.defineAnim("mechShoot", "0(2), 1-2");
-		// tiles.defineAnim("dust", "0(6), 1(6), 2(6), 3(6), 4(6), 5(6), 6(6), 7(6)");
 	}
 }

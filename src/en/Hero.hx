@@ -38,6 +38,7 @@ class Hero extends Entity {
 			g.drawRect(-radius, -hei, radius*2, hei);
 			g.endFill();
 		}
+		entityRepel = false;
 		spr.filter = new h2d.filter.Glow(0x0, 0.4, 32, 2, 2, true);
 		// Gun placeholder
 		gun = new h2d.Graphics(spr);
@@ -261,7 +262,7 @@ class Hero extends Entity {
 				cd.setS("reduceGravity",0.3);
 				if( options.heroSquashAndStrech )
 					skew(0.85,1.2);
-				fx.dust(footX, footY);
+				fx.dust(centerX, centerY);
 				
 			}
 

@@ -4,7 +4,7 @@ class Bullet extends Entity {
 	public static var ALL : Array<Bullet> = [];
 	public var speed = 1.0;
 	public var ang : Float;
-	public var fireBall:Bool = false;
+	public var fireBall:Bool = false; 
 
 	public function new(e:Entity, offY=0., ?_fireBall = false) {
 		super(0,0);

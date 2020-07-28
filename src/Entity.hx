@@ -255,6 +255,71 @@ class Entity {
 		colorMatrix.colorAdd( Color.addAlphaF(c) );
 		cd.setF("keepBlink",1);
 	}
+	public function checkLine(x0:Int, y0:Int, x1:Int, y1:Int, rayCanPass:Int->Int->Bool) {
+		if (!rayCanPass(x0, y0) || !rayCanPass(x1, y1))
+			return false;
+		var swapXY = fastAbs(y1 - y0) > fastAbs(x1 - x0);
+		var tmp:Int;
+		if (swapXY) {
+			// swap x and y
+			tmp = x0;
+			x0 = y0;
+			y0 = tmp; // swap x0 and y0
+			tmp = x1;
+			x1 = y1;
+			y1 = tmp; // swap x1 and y1
+		}
+
+		if (x0 > x1) {
+			// make sure x0 < x1
+			tmp = x0;
+			x0 = x1;
+			x1 = tmp; // swap x0 and x1
+			tmp = y0;
+			y0 = y1;
+			y1 = tmp; // swap y0 and y1
+		}
+
+		var deltax = x1 - x0;
+		var deltay = fastFloor(fastAbs(y1 - y0));
+		var error = fastFloor(deltax / 2);
+		var y = y0;
+		var ystep = if (y0 < y1) 1 else -1;
+
+		if (swapXY)
+			// Y / X
+			for (x in x0...x1 + 1) {
+				if (!rayCanPass(y, x))
+					return false;
+
+				error -= deltay;
+				if (error < 0) {
+					y = y + ystep;
+					error = error + deltax;
+				}
+			}
+		else
+			// X / Y
+			for (x in x0...x1 + 1) {
+				if (!rayCanPass(x, y))
+					return false;
+
+				error -= deltay;
+				if (error < 0) {
+					y = y + ystep;
+					error = error + deltax;
+				}
+			}
+		return true;
+	}
+
+	static inline function fastAbs(v:Int):Int {
+		return (v ^ (v >> 31)) - (v >> 31);
+	}
+
+	static inline function fastFloor(v:Float):Int {
+		return Std.int(v); // actually it's more "truncate" than "round to 0"
+	}
 
     public function preUpdate() {
 		cd.update(tmod);
