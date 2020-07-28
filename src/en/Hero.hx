@@ -269,13 +269,14 @@ class Hero extends Entity {
 				
 			}
 
-			if( (onGround || wallJump) && ca.aPressed() ) {
+			if ((onGround || wallJump || cd.has("wallJumpBuffer")) && ca.aPressed() ) {
 				// Normal jump
 				Assets.SBANK.dash1(0.2);
 				dy = -0.40;
 				if(wallJump){
 					dir =-dir;
 					dx = 0.4*dir;
+					cd.unset("wallJumpBuffer");
 					cd.setS("wallJumpLock", 0.2);
 				}
 				fx.dust(footX, footY);
@@ -324,7 +325,11 @@ class Hero extends Entity {
 				dy = 0;
 				wallJump = true;
 			}
-			else wallJump = false;
+			else if(wallJump) 
+			{
+				wallJump = false;
+				cd.setS("wallJumpBuffer", 0.15);
+			}
 		}
 
 		// Dash movement
