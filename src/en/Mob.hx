@@ -1,12 +1,13 @@
 package en;
 
 import dn.Rand;
+import Ext;
 
 class Mob extends Entity {
 	public static var ALL : Array<Mob> = [];
 	public var life = 1;
 	public var speed = 0.1;
-	public var jumpPower = 0.8;
+	public var jumpPower = 1;
 
 	public function new(x,y) {
 		super(x,y);
@@ -20,6 +21,10 @@ class Mob extends Entity {
 		g.beginFill(options.baseArt ? 0x000000 : 0xffffff);
 		g.drawRect(0, -hei/2, radius, hei/2);
 		entityRepel = false;
+		var randDir = irnd(0,1,true);
+		if(randDir == 0) dir = -1;
+		else dir = 1;
+		ext.setS(this, "cannotShoot", 0);
 	}
 
 	override function dispose() {
@@ -68,25 +73,45 @@ class Mob extends Entity {
 
 		destroy();
 	}
-	public function makeChoice() {
+	public function makeChoice(inSight:Bool) {
 		
-		
-		var rand = Std.int(rnd(0,100,true));
-		if(rand ==0) shoot();
-		if (rand >50)move(dir);
-		if (rand >80){
-			if (hero.cy < cy) jump();
-		}
-		else 
+		if(inSight){
+			var dirToHero = dirTo(hero);
+			var rand = Std.int(rnd(0,100,true));
+			if(rand > 50) dir = dirToHero;
+			if (ext.get(this, "cannotShoot") == false && dir == dirToHero && cy == hero.cy) shoot();
+			if (level.hasCollision(cx + 1, cy) || level.hasCollision(cx + 2, cy) && dir == 1)
+				jump();
+			if (level.hasCollision(cx - 1, cy) || level.hasCollision(cx - 2, cy) && dir == -1)
+				jump();
+
 			move(dir);
+		}
+		else{
+			if(level.hasCollision(cx+1,cy) && xr > 0.5 && dir == 1)
+			{
+				dir = dir*-1;
+				xr = 0.1;
+				dx = -0.1;
+			}
+			if(level.hasCollision(cx-1, cy) && xr <0.5 && dir == -1)
+			{
+				dir = dir*-1;
+				dx = 0.1;
+				xr = 0.9;
+			}
+			move(dir);
+		}
 	}
 	public function shoot(){
+		ext.setS(this, "cannotShoot", 1.5);
 		var b = new en.Bullet(this,0, true);
 		if (options.randomizeBullets)
 			b.ang += 0.04 - rnd(0, 0.065);
 		b.speed = options.randomizeBullets ? rnd(0.5, 0.6) : 1;
 	}
 	public function move(side:Int) {
+		
 		dx = speed*side;
 		spr.scaleX = side;
 	}
@@ -100,7 +125,6 @@ class Mob extends Entity {
 
 	override function update() {
 		super.update();
-		dir = dirTo(hero);
 
 		if (!onGround && dy < 0 && dy > -0.2)
 			gravMass = 0.2;
@@ -110,12 +134,8 @@ class Mob extends Entity {
 		
 		// trace(cx + "    " + cy);
 		// trace(hero.cx + "    " + hero.cy);
-		var bool = checkLine(cx, cy, hero.cx, hero.cy, function(x, y) return !game.level.hasCollision(x, y));
-		if(bool)
-		{
-			makeChoice();
-		} 
-		else stopMoving();
+		var inSight = checkLine(cx, cy, hero.cx, hero.cy, function(x, y) return !game.level.hasCollision(x, y));
+		makeChoice(inSight);
 		// trace("bool : " + bool);
 	}
 }

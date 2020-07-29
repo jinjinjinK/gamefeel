@@ -1,6 +1,6 @@
 package en;
 
-import hxd.Timer;
+
 import h2d.Anim;
 
 class Hero extends Entity {
@@ -254,8 +254,6 @@ class Hero extends Entity {
 			// Jump
 			if( !onGround && cd.has("extraJumping") && ca.aDown() )
 				dy+=-0.06*tmod;
-				// if(Timer.frameCount%4 == 0)fx.dust(footX, footY);
-				// fx.dust(footX, footY);	
 
 			if( !onGround && ca.aPressed() && cd.has("allowAirJump") ) {
 				// Double jump

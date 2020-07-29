@@ -7,6 +7,7 @@ class Game extends Process {
 
 	public var ca : dn.heaps.Controller.ControllerAccess;
 	public var fx : Fx;
+	public var ext : Ext;
 	public var camera : Camera;
 	public var scroller : h2d.Layers;
 	public var level : Level;
@@ -39,6 +40,7 @@ class Game extends Process {
 		camera.clampOnBounds = false;
 		level = new Level();
 		fx = new Fx();
+		ext = new Ext();
 
 		var oe = level.getEntities("hero")[0];
 		hero = new en.Hero(oe.cx, oe.cy);

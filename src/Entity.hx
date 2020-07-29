@@ -4,6 +4,7 @@ class Entity {
 
 	public var game(get,never) : Game; inline function get_game() return Game.ME;
 	public var fx(get,never) : Fx; inline function get_fx() return Game.ME.fx;
+	public var ext(get,never) : Ext; inline function get_ext() return Game.ME.ext;
 	public var level(get,never) : Level; inline function get_level() return Game.ME.level;
 	public var destroyed(default,null) = false;
 	public var ftime(get,never) : Float; inline function get_ftime() return game.ftime;
@@ -465,8 +466,10 @@ class Entity {
 				onLand( (footY-fallStartY)/Const.GRID );
 			}
 
-			if( hasCollisions && yr<0.9 && level.hasCollision(cx,cy-1) )
-				yr = 0.9;
+			// if( hasCollisions && yr<0.9 && level.hasCollision(cx,cy-1) )
+			// 	yr = 0.9;
+			if (hasCollisions && yr < 0.6 && level.hasCollision(cx, cy - 2))
+				yr = 0.6;
 
 			while( yr>1 ) { yr--; cy++; }
 			while( yr<0 ) { yr++; cy--; }
